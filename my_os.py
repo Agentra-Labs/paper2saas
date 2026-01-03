@@ -1,5 +1,7 @@
 from agno.os import AgentOS
+
 from paper2saas import (
+    workflow_agent,
     paper_analyzer,
     market_researcher,
     idea_generator,
@@ -7,14 +9,13 @@ from paper2saas import (
     strategic_advisor,
     report_generator,
     paper2saas_workflow,
-    workflow_agent,
 )
 
 paper2saas_os = AgentOS(
     name="paper2saas-os",
     description="Transforms academic papers into validated SaaS opportunities",
     agents=[
-        workflow_agent,  # Main entrypoint
+        workflow_agent,  # ← Main chat interface
         paper_analyzer,
         market_researcher,
         idea_generator,
@@ -28,4 +29,4 @@ paper2saas_os = AgentOS(
 app = paper2saas_os.get_app()
 
 if __name__ == "__main__":
-    paper2saas_os.serve(app="my_os:app", reload=True)  # Adjust module name if needed
+    paper2saas_os.serve(app="__main__:app", reload=True)

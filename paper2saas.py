@@ -1,5 +1,4 @@
 import os
-import re
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
@@ -7,7 +6,7 @@ from pydantic import BaseModel, Field
 from agno.agent import Agent
 from agno.workflow import Workflow, Step, Parallel
 from agno.workflow.types import StepInput, StepOutput
-from agno.db.sqlite import AsyncSqliteDb
+from agno.db.sqlite import SqliteDb  # ← Use sync DB to avoid async errors
 from agno.tools.reasoning import ReasoningTools
 from agno.tools.workflow import WorkflowTools
 from agno.tools.arxiv import ArxivTools
@@ -27,253 +26,255 @@ class Paper2SaaSInput(BaseModel):
     """Input schema for the Paper2SaaS workflow."""
     arxiv_id: str = Field(..., description="The arXiv paper ID to analyze (e.g., '2401.00001')")
 
+
 # --- AGENTS ---
 
-# 1. Paper Analyzer
 paper_analyzer = Agent(
     name="PaperAnalyzer",
     model="mistral:mistral-large-latest",
-    tools=[ArxivTools(), ReasoningTools(add_instructions=True)],
+    tools=[
+        ArxivTools(),
+        ReasoningTools(add_instructions=True),
+        BaiduSearchTools(),
+        FirecrawlTools(enable_search=True, enable_scrape=True)
+    ],
     instructions="""
-    You are an expert AI researcher. Your task is to analyze the specific arXiv paper provided.
+You are an expert AI researcher tasked with analyzing a specific arXiv paper.
 
-    CRITICAL:
-    - Use ArxivTools.search_arxiv() with the given arXiv ID to fetch the exact paper.
-    - Do NOT hallucinate or analyze any other paper.
-    - If the paper cannot be found, report it clearly.
+CRITICAL RULES:
+- Always use ArxivTools.search_arxiv() with the exact provided arXiv ID.
+- Never hallucinate or analyze a different paper.
+- If the paper cannot be found, clearly state: "Paper not found for arXiv ID: {id}"
 
-    Output structure:
-    ## Paper Title & ID
-    - Title: [Actual title]
-    - ArXiv ID: [Given ID]
-    - Authors: [List]
+Required output format:
+## Paper Title & ID
+- Title: ...
+- ArXiv ID: ...
+- Authors: ...
 
-    ## Executive Summary
-    [2-3 sentences]
+## Executive Summary
+[2-3 sentences]
 
-    ## Core Technical Innovations
-    - [Innovation 1]
-    - [Innovation 2]
-    - [Innovation 3]
+## Core Technical Innovations
+- ...
 
-    ## Technical Architecture
-    [Key details]
+## Technical Architecture
+[Key methods and design]
 
-    ## Limitations & Constraints
-    - [Limitation 1]
-    - [Limitation 2]
+## Limitations & Constraints
+- ...
 
-    ## Potential Real-World Applications
-    - [Application 1]
-    - [Application 2]
-    - [Application 3]
+## Potential Real-World Applications
+- ...
 
-    ## Key Results/Metrics
-    [Metrics if available]
-    """,
+## Key Results/Metrics
+[If available]
+""",
     markdown=True,
 )
 
-# 2. Market Researcher
 market_researcher = Agent(
     name="MarketResearcher",
     model="mistral:mistral-small-latest",
     tools=[HackerNewsTools(), WebsiteTools(), BaiduSearchTools()],
     instructions="""
-    You are a market research expert in AI/ML/SaaS.
+You are a market intelligence expert in AI/ML and SaaS tools.
 
-    Search for recent discussions on:
-    - AI tool frustrations
-    - Fine-tuning/deployment/data challenges
-    - ML infrastructure pain points
-    - Pricing complaints
+Research current pain points and opportunities in:
+- Fine-tuning & model customization
+- Deployment & serving
+- Data labeling & preparation
+- Cost and pricing of AI tools
+- ML infrastructure & observability
 
-    Output:
-    ## Market Signals
-    - **Signal 1**: [Description + source]
-    - **Signal 2**: ...
+Output format:
+## Market Signals
+- **Signal 1**: [Description + source/link]
 
-    ## Key Pain Points
-    - **Pain Point 1**: [Who, why, evidence]
-    - **Pain Point 2**: ...
+## Key Pain Points
+- **Pain Point 1**: [Who experiences it, evidence]
 
-    ## Opportunity Areas
-    - **Area 1**: [Description]
-    - **Area 2**: ...
-
-    Focus on recent data.
-    """,
+## Opportunity Areas
+- **Area 1**: [Emerging need + indicators]
+""",
     markdown=True,
 )
 
-# 3. Idea Generator
 idea_generator = Agent(
     name="IdeaGenerator",
     model="mistral:mistral-large-latest",
     tools=[ReasoningTools(add_instructions=True)],
     instructions="""
-    You are a product strategist. Using the paper analysis and market research:
+You are a world-class product strategist.
 
-    Generate 7-10 SaaS ideas that:
-    - Directly leverage the paper's innovations
-    - Solve specific market pain points
-    - Are revenue-viable in 6 months
-    - Feasible for a small team
+Using the paper analysis and market research provided, generate 7–10 SaaS product ideas that:
+- Directly build on the paper's technical innovations
+- Solve real, validated market pain points
+- Are feasible for a small team
+- Can generate revenue within 6 months
 
-    For each idea:
-    ### Idea #X: [Name]
-    **Core Concept**: ...
-    **Target Market**: ...
-    **Value Proposition**: ...
-    **Technical Approach**: ...
-    **Competitive Moat**: ...
-    **Revenue Model**: ...
-    **Implementation Complexity**: [Low/Medium/High] - [Why]
-    **MVP Features**: [3-4 features]
+For each idea:
+### Idea #X: [Catchy Name]
+**Core Concept**: [1-2 sentences]
+**Target Market**: [Segment + size estimate]
+**Value Proposition**: [Why users pay]
+**Technical Approach**: [How paper's tech enables it]
+**Competitive Moat**: [Defensibility]
+**Revenue Model**: [Subscription / usage / etc.]
+**Implementation Complexity**: [Low/Medium/High] – [reason]
+**MVP Features**: [3-4 bullet points]
 
-    Rank by market demand (40%), feasibility (30%), revenue (30%).
-    """,
+Rank ideas by: Market demand (40%), Technical feasibility (30%), Revenue potential (30%).
+""",
     markdown=True,
 )
 
-# 4. Validation Researcher
 validation_researcher = Agent(
     name="ValidationResearcher",
     model="mistral:mistral-large-latest",
     tools=[FirecrawlTools(enable_search=True, enable_scrape=True), HackerNewsTools(), WebsiteTools()],
     instructions="""
-    You are a due diligence expert. Validate the TOP 3 ranked ideas.
+Validate the TOP 3 ranked ideas with rigorous research.
 
-    For each:
-    ## Idea: [Name + Concept]
+For each idea:
+## Idea: [Name + Core Concept]
 
-    ### Market Validation
-    - **Demand Evidence**: ...
-    - **Market Size**: ...
-    - **Growth Indicators**: ...
+### Market Validation
+- **Demand Evidence**: [Searches, posts, requests found]
+- **Market Size**: [Estimates]
+- **Growth Indicators**: [Trends]
 
-    ### Competitive Landscape
-    - **Direct Competitors**: [Name, URL, features, pricing]
-    - **Indirect Solutions**: ...
-    - **Market Gaps**: ...
+### Competitive Landscape
+- **Direct Competitors**: [Name, URL, pricing]
+- **Indirect Solutions**: [Alternatives]
+- **Market Gaps**: [Unmet needs]
 
-    ### Technical Validation
-    - **Implementation Examples**: ...
-    - **Technical Risks**: ...
-    - **Required Expertise**: ...
+### Technical Validation
+- **Implementation Risks**: [...]
+- **Required Expertise**: [...]
 
-    ### Go-to-Market
-    - **Early Adopters**: ...
-    - **Distribution Channels**: ...
-    - **Pricing Benchmark**: ...
-
-    ### Risk Assessment
-    - **Primary Risk**: ...
-    - **Mitigation**: ...
-    """,
+### Go-to-Market
+- **Early Adopters**: [Communities/companies]
+- **Distribution Channels**: [...]
+- **Pricing Benchmark**: [...]
+""",
     markdown=True,
 )
 
-# 5. Strategic Advisor
 strategic_advisor = Agent(
     name="StrategicAdvisor",
     model="mistral:mistral-large-latest",
     tools=[ReasoningTools(add_instructions=True)],
     instructions="""
-    You are a startup advisor. For each validated idea:
+Perform a critical evaluation of each validated idea.
 
-    ## Idea: [Name]
+For each:
+## Idea: [Name]
 
-    ### SWOT Analysis
-    **Strengths**: ...
-    **Weaknesses**: ...
-    **Opportunities**: ...
-    **Threats**: ...
+### SWOT Analysis
+**Strengths**: ...
+**Weaknesses**: ...
+**Opportunities**: ...
+**Threats**: ...
 
-    ### Viability Score
-    - Market Fit: [1-10]
-    - Technical Feasibility: [1-10]
-    - Business Model: [1-10]
-    - Overall: [Average]
+### Viability Score
+- Market Fit: [1-10]
+- Technical Feasibility: [1-10]
+- Business Model: [1-10]
+- Overall: [Average]
 
-    ### Recommendation
-    **[PROCEED / PIVOT / PASS]**
-    **Reasoning**: ...
-    **If PROCEED**: Next 3 steps
-    **If PIVOT**: Suggested changes
-    **If PASS**: Why not
+### Recommendation
+**[PROCEED / PIVOT / PASS]**
 
-    Only PROCEED if overall ≥7 and no critical blockers.
-    """,
+**Reasoning**: [Detailed]
+**Next Steps** (if PROCEED): 3 immediate actions
+**Pivot Suggestions** (if PIVOT)
+**Why Not** (if PASS)
+
+Only recommend PROCEED if overall ≥ 7.5 and no fatal flaws.
+""",
     markdown=True,
 )
 
-# 6. Report Generator
 report_generator = Agent(
     name="ReportGenerator",
     model="mistral:mistral-large-latest",
     instructions="""
-    Synthesize into a professional report.
+Create a professional executive report synthesizing all prior work.
 
-    # Paper-to-SaaS Opportunity Report
-    ## Executive Summary
-    ...
+# Paper-to-SaaS Opportunity Report
 
-    ## Technical Innovation Summary
-    ...
+## Executive Summary
+**Paper**: [Title + arXiv ID]
+**Core Innovation**: [1 sentence]
+**Market Gap**: [1 sentence]
+**Top Recommendation**: [Idea name + value prop]
+**Confidence**: [High/Medium/Low]
 
-    ## Market Analysis Summary
-    ...
+## Technical Summary
+...
 
-    ## Top SaaS Recommendations
-    ### 🥇 Primary: ...
-    ### 🥈 Alternative: ...
+## Market Analysis Summary
+...
 
-    ## Implementation Roadmap
-    ...
+## Top Recommendations
+### Primary: [Name + details]
+### Alternative: [Name + details]
 
-    ## Success Metrics
-    ...
+## Implementation Roadmap
+### Week 1-2: ...
+### Week 3-4: ...
+### Week 5-6: MVP Launch
 
-    ## Risk Mitigation
-    | Risk | Impact | Mitigation |
-    |------|--------|------------|
-    ...
+## Success Metrics
+- Month 1: ...
+- Month 3: ...
+- Month 6: ...
 
-    ## Immediate Next Steps
-    ...
-    """,
+## Risk Mitigation
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| ...  | ...    | ...        |
+
+## Immediate Next Steps
+1. ...
+2. ...
+3. ...
+
+---
+*Generated on January 03, 2026*
+""",
     markdown=True,
 )
 
-# --- HELPER EXECUTORS ---
 
+# --- HELPER ---
 def combine_research(step_input: StepInput) -> StepOutput:
-    paper = step_input.get_step_content("analyze_paper") or "No paper analysis"
-    market = step_input.get_step_content("research_market") or "No market research"
+    paper = step_input.get_step_content("analyze_paper") or "No paper analysis available."
+    market = step_input.get_step_content("research_market") or "No market research available."
 
     combined = f"""
-# Combined Research
+# Combined Research Context
 
-## 📄 Paper Analysis
+## Paper Analysis
 {paper}
 
-## 📊 Market Research
+## Market Research
 {market}
 
-## 🎯 Goal
-Generate SaaS ideas bridging the paper's innovations with market needs.
-    """
+## Next Step
+Generate SaaS ideas that apply the paper's innovations to solve these market problems.
+"""
     return StepOutput(step_name="combine_research", content=combined, success=True)
 
-# --- WORKFLOW ---
 
+# --- WORKFLOW ---
 paper2saas_workflow = Workflow(
     id="paper2saas",
     name="Paper2SaaS Discovery Engine",
-    description="Analyze an arXiv paper for SaaS opportunities",
+    description="Turn any arXiv paper into validated SaaS opportunities",
     input_schema=Paper2SaaSInput,
-    db=AsyncSqliteDb(db_file="tmp/paper2saas.db"),
+    db=SqliteDb(db_file="tmp/paper2saas.db"),  # ← Sync DB = no async errors
     steps=[
         Parallel(
             Step(name="analyze_paper", agent=paper_analyzer),
@@ -289,12 +290,18 @@ paper2saas_workflow = Workflow(
     store_events=True,
 )
 
-# --- WORKFLOW AGENT (for direct chat access) ---
 
+# --- MAIN ENTRYPOINT AGENT ---
 workflow_agent = Agent(
     name="Paper2SaaS",
     model="mistral:mistral-large-latest",
-    tools=[WorkflowTools(workflow=paper2saas_workflow)],
-    instructions="You are the entrypoint for the Paper2SaaS system. Run the workflow with the provided arXiv ID.",
+    tools=[WorkflowTools(workflow=paper2saas_workflow, add_instructions=True)],
+    instructions="""
+You are Paper2SaaS — an AI system that transforms cutting-edge research papers into actionable, validated SaaS business opportunities.
+
+When the user provides an arXiv ID (e.g., 2401.00001, 2511.13646, or a full URL), immediately run the 'paper2saas' workflow with that ID.
+
+Extract the ID cleanly and pass it as structured input. Do not ask for confirmation — just execute.
+""",
     markdown=True,
 )
