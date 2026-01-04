@@ -124,7 +124,7 @@ Configuration:
 
 ```bash
 # Start the backend server
-uv run my_os.py
+uv run -m paper2saas_app.main
 ```
 
 ### 2. Start the Frontend (UI)

@@ -3,6 +3,7 @@ from agno.tools.reasoning import ReasoningTools
 from agno.tools.firecrawl import FirecrawlTools
 from agno.tools.website import WebsiteTools
 
+from paper2saas_app.config import AgentConfig
 from paper2saas_app.prompts.agents import DEVILS_ADVOCATE_INSTRUCTIONS
 
 devils_advocate = Agent(

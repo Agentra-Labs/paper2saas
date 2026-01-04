@@ -4,6 +4,7 @@ from agno.tools.website import WebsiteTools
 from agno.tools.baidusearch import BaiduSearchTools
 from agno.tools.firecrawl import FirecrawlTools
 
+from paper2saas_app.config import AgentConfig
 from paper2saas_app.prompts.agents import MARKET_SKEPTIC_INSTRUCTIONS
 
 market_skeptic = Agent(
