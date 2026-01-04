@@ -7,6 +7,10 @@ load_dotenv()
 os.environ["FIRECRAWL_API_KEY"] = os.getenv("FIRECRAWL_API_KEY", "")
 os.environ["MISTRAL_API_KEY"] = os.getenv("MISTRAL_API_KEY")
 
+# Set dummy OpenAI key to silence warnings if OpenAI client initializes by default
+if not os.getenv("OPENAI_API_KEY"):
+    os.environ["OPENAI_API_KEY"] = "sk-dummy-key-to-silence-warning"
+
 class AgentConfig:
     """Centralized configuration for all agents"""
     # Models
