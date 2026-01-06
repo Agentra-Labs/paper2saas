@@ -49,6 +49,14 @@ Parallel critique for stress-testing:
 - **DevilsAdvocate** - Technical critique with tool-verified evidence
 - **MarketSkeptic** - Market assumptions challenge
 
+### Implementation Team: implementation_team (4 agents)
+
+Builds production-ready code from validated ideas:
+- **CodeArchitect** - Designs system architecture and tech stack
+- **FullStackEngineer** - Generates production code (backend + frontend)
+- **DeploymentSpecialist** - Creates Docker, K8s, and CI/CD configurations
+- **QAEngineer** - Designs testing strategy and QA plans
+
 ### Frontend: Agent UI
 A modern, reactive web interface built with Next.js that provides:
 - Real-time streaming of agent activities

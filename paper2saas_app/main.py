@@ -11,13 +11,20 @@ from .agents.fact_checker import fact_checker
 from .agents.devils_advocate import devils_advocate
 from .agents.market_skeptic import market_skeptic
 
+# Implementation Team Agents
+from .agents.code_architect import code_architect
+from .agents.fullstack_engineer import fullstack_engineer
+from .agents.deployment_specialist import deployment_specialist
+from .agents.qa_engineer import qa_engineer
+
 from .teams.paper2saas import paper2saas_team
 from .teams.roaster import idea_roaster_team
+from .teams.implementation import implementation_team
 from .config import AgentConfig
 
 p2s_os = AgentOS(
     name="p2s-os",
-    description="Turns academic papers into battle-tested SaaS opportunities",
+    description="Turns academic papers into battle-tested SaaS opportunities with production-ready implementation",
     agents=[
         paper_analyzer,
         market_researcher,
@@ -28,11 +35,17 @@ p2s_os = AgentOS(
         product_engineer,
         fact_checker,
         devils_advocate,
-        market_skeptic
+        market_skeptic,
+        # Implementation Team Agents
+        code_architect,
+        fullstack_engineer,
+        deployment_specialist,
+        qa_engineer,
     ],
     teams=[
-        paper2saas_team,     # Main flow
-        idea_roaster_team,   # Brutal critique
+        paper2saas_team,     # Main flow: Paper analysis -> SaaS ideas
+        idea_roaster_team,   # Critique: Stress-test ideas
+        implementation_team, # Build: Production-ready code
     ],
     tracing=False,
 )

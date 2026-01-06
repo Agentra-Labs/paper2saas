@@ -30,3 +30,9 @@ class AgentConfig:
     STORE_EVENTS = os.getenv("STORE_EVENTS", "true").lower() == "true"
     SHOW_MEMBER_RESPONSES = os.getenv("SHOW_MEMBER_RESPONSES", "true").lower() == "true"
     DEBUG_MODE = os.getenv("DEBUG_MODE", "false").lower() == "true"
+    
+    # Implementation Team Models
+    ARCHITECT_MODEL = os.getenv("ARCHITECT_MODEL", LARGE_MODEL)
+    ENGINEER_MODEL = os.getenv("ENGINEER_MODEL", LARGE_MODEL)
+    DEPLOYMENT_MODEL = os.getenv("DEPLOYMENT_MODEL", SMALL_MODEL)
+    QA_MODEL = os.getenv("QA_MODEL", SMALL_MODEL)

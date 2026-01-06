@@ -1,4 +1,4 @@
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Dict
 from pydantic import BaseModel, Field
 
 # --- STRUCTURED OUTPUT MODELS ---
@@ -101,3 +101,67 @@ class ProductEngineerOutput(BaseModel):
 
 class Paper2SaaSInput(BaseModel):
     arxiv_id: str = Field(..., description="The arXiv paper ID to analyze")
+
+
+# --- IMPLEMENTATION TEAM OUTPUT MODELS ---
+
+class CodeFile(BaseModel):
+    """Represents a single code file in the implementation"""
+    file_path: str = Field(..., description="Relative path e.g. src/api/routes.py")
+    language: str = Field(..., description="Programming language")
+    content: str = Field(..., description="File content")
+    description: str = Field(default="", description="Purpose of this file")
+
+
+class ArchitectureDesign(BaseModel):
+    """Output from CodeArchitect agent"""
+    idea_name: str
+    components: List[str] = Field(..., min_length=2, description="System components")
+    architecture_diagram: str = Field(..., description="ASCII diagram of the system")
+    tech_stack: Dict[str, str] = Field(..., description="Technology choices with justifications")
+    design_rationale: str = Field(..., description="Why this architecture was chosen")
+    api_endpoints: List[str] = Field(default_factory=list, description="REST/GraphQL endpoints")
+    database_schema: str = Field(default="", description="Database tables/collections")
+    confidence_level: Literal["HIGH", "MEDIUM", "LOW"] = "MEDIUM"
+
+
+class ImplementationCode(BaseModel):
+    """Output from FullStackEngineer agent"""
+    idea_name: str
+    files: List[CodeFile] = Field(..., min_length=1)
+    setup_instructions: str = Field(..., description="How to set up the project")
+    dependencies: List[str] = Field(..., min_length=1, description="npm/pip packages")
+    environment_variables: List[str] = Field(default_factory=list)
+    run_instructions: str = Field(default="", description="How to run the application")
+
+
+class DeploymentConfig(BaseModel):
+    """Output from DeploymentSpecialist agent"""
+    idea_name: str
+    dockerfile: str = Field(..., description="Dockerfile content")
+    docker_compose: Optional[str] = Field(default=None, description="docker-compose.yml content")
+    kubernetes_manifests: Optional[str] = Field(default=None, description="K8s deployment YAML")
+    ci_cd_pipeline: str = Field(..., description="GitHub Actions or similar CI/CD workflow")
+    environment_setup: str = Field(..., description="Environment variables and secrets setup")
+    cloud_provider_notes: str = Field(default="", description="AWS/GCP/Azure specific notes")
+
+
+class QAStrategy(BaseModel):
+    """Output from QAEngineer agent"""
+    idea_name: str
+    test_cases: List[str] = Field(..., min_length=3, description="Core test cases")
+    edge_cases: List[str] = Field(default_factory=list, description="Edge case scenarios")
+    integration_test_plan: str = Field(..., description="How to test component integration")
+    load_test_approach: str = Field(default="", description="Performance testing strategy")
+    security_checklist: List[str] = Field(default_factory=list, description="Security validations")
+
+
+class ImplementationPackage(BaseModel):
+    """Complete implementation package combining all agents' output"""
+    idea_name: str
+    architecture: ArchitectureDesign
+    code: ImplementationCode
+    deployment: DeploymentConfig
+    qa_strategy: Optional[QAStrategy] = None
+    estimated_dev_hours: int = Field(..., description="Estimated hours to build MVP")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Overall confidence")
