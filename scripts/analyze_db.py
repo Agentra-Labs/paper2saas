@@ -8,7 +8,7 @@ load_dotenv()
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from research2saas.utils import shared_db
+from paper2saas.utils import shared_db
 from sqlalchemy import inspect, text
 
 
