@@ -17,12 +17,18 @@ export function ModeSelector() {
     const setSelectedModel = useStore((state) => state.setSelectedModel)
     const hydrated = useStore((state) => state.hydrated)
 
+    // Use a ref to track current mode to avoid infinite loop
+    const modeRef = React.useRef(mode)
+    React.useEffect(() => {
+        modeRef.current = mode
+    }, [mode])
+
     const handleModeChange = React.useCallback((newMode: string) => {
-        if (newMode === mode) return
+        if (newMode === modeRef.current) return
         setMode(newMode as 'agent' | 'team')
         setSelectedModel('')
         setMessages([])
-    }, [mode, setMode, setSelectedModel, setMessages])
+    }, [setMode, setSelectedModel, setMessages])
 
     // Don't render until hydrated to avoid SSR/client mismatch
     if (!hydrated) {
