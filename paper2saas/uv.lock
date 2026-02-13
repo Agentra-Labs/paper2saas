@@ -662,6 +662,24 @@ wheels = [
 ]
 
 [[package]]
+name = "firecrawl-py"
+version = "4.14.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "httpx" },
+    { name = "nest-asyncio" },
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+    { name = "requests" },
+    { name = "websockets" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9a/6b/eb7067d156a98130da0dcb4791ae37b547bf0985de23ca86564d121192f4/firecrawl_py-4.14.1.tar.gz", hash = "sha256:87c31fdc587bad7135238102be3f0d97dc0236350b0885d702c81049644fa3c6", size = 164435, upload-time = "2026-02-12T19:03:05.732Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b3/64/2662b0b17c20534642835fb09ee5df6e5802f2ee580501f317c8ff655c30/firecrawl_py-4.14.1-py3-none-any.whl", hash = "sha256:92b86954c46cae5bf912d3dd15915fb864a041937eab112328083996771036ec", size = 206460, upload-time = "2026-02-12T19:03:04.443Z" },
+]
+
+[[package]]
 name = "fonttools"
 version = "4.61.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1709,6 +1727,15 @@ wheels = [
 ]
 
 [[package]]
+name = "nest-asyncio"
+version = "1.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/83/f8/51569ac65d696c8ecbee95938f89d4abf00f47d58d48f6fbabfe8f0baefe/nest_asyncio-1.6.0.tar.gz", hash = "sha256:6f172d5449aca15afd6c646851f4e31e02c598d553a667e38cafa997cfec55fe", size = 7418, upload-time = "2024-01-21T14:25:19.227Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a0/c4/c2971a3ba4c6103a3d10c4b0f24f461ddc027f0f09763220cf35ca1401b3/nest_asyncio-1.6.0-py3-none-any.whl", hash = "sha256:87af6efd6b5e897c81050477ef65c62e2b2f35d51703cae01aff2905b1852e1c", size = 5195, upload-time = "2024-01-21T14:25:17.223Z" },
+]
+
+[[package]]
 name = "networkx"
 version = "3.6.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2097,6 +2124,7 @@ dependencies = [
     { name = "backoff" },
     { name = "cachetools" },
     { name = "fastapi" },
+    { name = "firecrawl-py" },
     { name = "httpx" },
     { name = "lancedb" },
     { name = "loguru" },
@@ -2146,6 +2174,7 @@ requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=23.10.0" },
     { name = "cachetools", specifier = ">=5.3.0" },
     { name = "fastapi", specifier = ">=0.128.0" },
+    { name = "firecrawl-py", specifier = ">=4.14.1" },
     { name = "httpx", specifier = ">=0.27.0" },
     { name = "lancedb", specifier = ">=0.27.1" },
     { name = "loguru", specifier = ">=0.7.0" },

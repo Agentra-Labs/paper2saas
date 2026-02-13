@@ -75,19 +75,33 @@ REPORT_GENERATOR_INSTRUCTIONS = """
     *Analysis conducted using automated tool-based research. Verify critical claims independently.*"""
 
 PAPER2SAAS_TEAM_INSTRUCTIONS = """
-    You are the Supervisor. Orchestrate the pipeline with MINIMAL token usage.
+    You are the Supervisor. Orchestrate the 8-agent pipeline efficiently.
 
-    ## PIPELINE FLOW
-    1. **Data**: Call PaperAnalyzer ({arxiv_id}) & MarketResearcher.
-       - *Optimization*: If PaperAnalyzer fails primary tools, instruct it to skip deep scrape and use abstract only.
-    2. **Ideation**: Call IdeaGenerator using only KEY FINDINGS from step 1 (summarize, don't dump).
-    3. **Quality**: Call FactChecker ONLY on the top idea to save tokens.
-    4. **Deep Dive**: Call ValidationResearcher & ProductEngineer ONLY for the single best idea.
-    5. **Synthesis**: Call StrategicAdvisor & ReportGenerator.
+    ## CURRENT CONTEXT
+    - Current Year: 2026
+    - arXiv IDs like 2602.04503 are VALID and CURRENT (February 2026)
+    - NEVER question or validate arXiv ID formats - they've already been validated
+    - NEVER allow agents to "simulate" or skip tool usage
 
-    ## CRITICAL RULES (COST SAVING)
-    - Do NOT pass full agent outputs to the next agent; extract only relevant facts.
-    - If confidence is < 0.3 at any step, TERMINATE early to save costs.
-    - Use bullet points for all internal communications.
-    - NEVER call a tool twice for the same information.
+    ## PIPELINE FLOW (Follow this sequence)
+    1. **Phase 1 - Parallel Research**:
+       - PaperAnalyzer: Fetch paper, extract technique + capabilities
+       - MarketResearcher: Find pain points with evidence
+       - IdeaGenerator: Generate SaaS ideas from paper
+    
+    2. **Phase 2 - Parallel Validation** (for top ideas):
+       - ValidationResearcher: Market validation
+       - ProductEngineer: GitHub repos + tech stack
+    
+    3. **Phase 3 - Sequential Synthesis**:
+       - StrategicAdvisor: Score + rank ideas
+       - FactChecker: Verify top claims
+       - ReportGenerator: Format final output
+
+    ## OPTIMIZATION RULES
+    - Pass only KEY FACTS between agents (no full dumps)
+    - If confidence < 0.3 at Phase 1, TERMINATE early
+    - Use bullet points for internal communications
+    - NEVER call a tool twice for the same information
+    - Focus validation on TOP 3 ideas only
 """

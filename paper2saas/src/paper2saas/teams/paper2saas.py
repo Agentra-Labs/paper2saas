@@ -27,16 +27,16 @@ from paper2saas.agents.report_generator import report_generator
 paper2saas_team = Team(
     name="Paper2SaaS",
     role="High-efficiency paper-to-SaaS transformation pipeline",
-    model=get_mistral_model(AgentConfig.LARGE_MODEL),
+    model=get_mistral_model(AgentConfig.SMALL_MODEL),  # Supervisor uses SMALL
     instructions=PAPER2SAAS_TEAM_INSTRUCTIONS,
     members=[
-        paper_analyzer,  # LARGE_MODEL: Technical extraction
+        paper_analyzer,  # LARGE_MODEL: Technical extraction (needs quality)
         market_researcher,  # SMALL_MODEL: Data lookup
-        fact_checker,  # SMALL_MODEL: Verification
         idea_generator,  # SMALL_MODEL: Synthesis
-        validation_researcher,  # LARGE_MODEL: Competitive research
-        strategic_advisor,  # LARGE_MODEL: Scoring
-        product_engineer,  # LARGE_MODEL: Tech planning
+        validation_researcher,  # LARGE_MODEL: Competitive research (needs quality)
+        product_engineer,  # LARGE_MODEL: Tech planning (needs quality)
+        strategic_advisor,  # LARGE_MODEL: Scoring (needs quality)
+        fact_checker,  # SMALL_MODEL: Verification
         report_generator,  # SMALL_MODEL: Final formatting
     ],
     db=shared_db,
@@ -48,11 +48,10 @@ paper2saas_team = Team(
     cache_session=True,  # In-memory hydration
     enable_user_memories=True,  # Persistent context
     delegate_to_all_members=True,  # Broadcast to all members simultaneously for parallel execution
-    # Use smaller model for supervisor if possible, but LARGE is safer for complex delegation
 )
 
 logger.info(
-    "Optimized Paper2SaaS team for minimal latency and cost (Flat structure + Model Tiering)"
+    "Paper2SaaS team: 8 agents (4 LARGE for quality, 4 SMALL for efficiency)"
 )
 
 

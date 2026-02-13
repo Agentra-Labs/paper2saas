@@ -19,7 +19,7 @@ paper_analyzer = create_agent(
     name="Paper Analyzer",
     instructions=PAPER_ANALYZER_INSTRUCTIONS,
     tools=_tools,
-    model_id=AgentConfig.LARGE_MODEL,
+    model_id=AgentConfig.LARGE_MODEL,  # Keep LARGE for quality
     reasoning=False,
-    tool_call_limit=4,
+    tool_call_limit=3,  # Reduced from 4 to 3 (modest reduction)
 )

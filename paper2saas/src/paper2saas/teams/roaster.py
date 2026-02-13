@@ -12,7 +12,7 @@ from paper2saas.agents.market_skeptic import market_skeptic
 idea_roaster_team = Team(
     name="IdeaRoaster",
     role="Stress-test SaaS ideas with evidence-based critique",
-    model=get_mistral_model(AgentConfig.LARGE_MODEL),
+    model=get_mistral_model(AgentConfig.SMALL_MODEL),  # Changed from LARGE to SMALL
     # reasoning=True,
     instructions=IDEA_ROASTER_TEAM_INSTRUCTIONS,
     members=[devils_advocate, market_skeptic],
@@ -22,7 +22,7 @@ idea_roaster_team = Team(
     show_members_responses=AgentConfig.SHOW_MEMBER_RESPONSES,
     add_datetime_to_context=True,
 )
-logger.info("Initialized idea_roaster_team with 2 agents")
+logger.info("Initialized idea_roaster_team with 2 agents (SMALL model)")
 
 
 def run_idea_roaster(idea_context: str) -> dict:

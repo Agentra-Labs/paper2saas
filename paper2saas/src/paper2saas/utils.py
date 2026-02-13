@@ -28,20 +28,20 @@ else:
     logger.addHandler(logging.NullHandler())
 
 # --- Database for session storage ---
-# Try Supabase first, fallback to SQLite
+# SQLite is the default for better reliability in local development.
+# Set USE_SESSION_POSTGRES=true and provide SUPABASE credentials to use PostgreSQL.
+USE_SESSION_POSTGRES = os.getenv("USE_SESSION_POSTGRES", "false").lower() == "true"
 SUPABASE_PROJECT = os.getenv("SUPABASE_PROJECT")
 SUPABASE_PASSWORD = os.getenv("SUPABASE_PASSWORD")
 
 os.makedirs("tmp", exist_ok=True)
 
-if SUPABASE_PROJECT and SUPABASE_PASSWORD:
+if USE_SESSION_POSTGRES and SUPABASE_PROJECT and SUPABASE_PASSWORD:
     try:
         from agno.db.postgres import PostgresDb
 
         SUPABASE_DB_URL = f"postgresql://postgres.{SUPABASE_PROJECT}:{SUPABASE_PASSWORD}@aws-0-us-east-1.pooler.supabase.com:6543/postgres"
         shared_db = PostgresDb(db_url=SUPABASE_DB_URL)
-        # Attempt a simple operation if possible, or just trust the init for now
-        # Agno's PostgresDb usually validates on first use, but we want to catch OperationalError here if it happens during init
         logger.info("Using Supabase PostgreSQL for session storage")
     except Exception as e:
         from agno.db.sqlite import SqliteDb
@@ -49,11 +49,13 @@ if SUPABASE_PROJECT and SUPABASE_PASSWORD:
         logger.warning(f"Failed to connect to Supabase: {e}. Falling back to SQLite.")
         shared_db = SqliteDb(db_file="tmp/paper2saas.db")
 else:
-    # Fallback to SQLite if Supabase credentials not configured
     from agno.db.sqlite import SqliteDb
 
     shared_db = SqliteDb(db_file="tmp/paper2saas.db")
-    logger.info("Using SQLite for session storage (set SUPABASE_PROJECT/PASSWORD for PostgreSQL)")
+    if USE_SESSION_POSTGRES:
+        logger.warning("Supabase credentials missing. Using SQLite for session storage.")
+    else:
+        logger.info("Using SQLite for session storage")
 
 
 import itertools

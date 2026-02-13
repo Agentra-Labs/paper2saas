@@ -11,9 +11,9 @@ os.environ["MISTRAL_API_KEY"] = os.getenv("MISTRAL_API_KEY")
 class AgentConfig:
     """Centralized configuration for all agents"""
 
-    # Models
+    # Models - Quality over quantity
     LARGE_MODEL = os.getenv("LARGE_MODEL", "mistral:mistral-large-latest")
-    SMALL_MODEL = os.getenv("SMALL_MODEL", "mistral:mistral-small-latest")
+    SMALL_MODEL = os.getenv("SMALL_MODEL", "mistral:mistral-large-latest")  # Changed from small to large for quality
 
     # Specific Agent Models
     MARKET_RESEARCHER_MODEL = os.getenv("MARKET_RESEARCHER_MODEL", SMALL_MODEL)

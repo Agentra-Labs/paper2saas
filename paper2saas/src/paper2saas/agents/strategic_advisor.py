@@ -7,8 +7,7 @@ from paper2saas.prompts.ideation import STRATEGIC_ADVISOR_INSTRUCTIONS
 
 strategic_advisor = create_agent(
     name="Strategic Advisor",
-    model_id=AgentConfig.STRATEGIC_ADVISOR_MODEL,
-    tools=[ReasoningTools()],
-    # reasoning=True, # Commented out in original
+    model_id=AgentConfig.STRATEGIC_ADVISOR_MODEL,  # Keep LARGE for quality scoring
+    tools=[],  # Removed ReasoningTools to save calls
     instructions=STRATEGIC_ADVISOR_INSTRUCTIONS,
 )
