@@ -1,329 +1,189 @@
-# Paper2SaaS
+# 🧪 Paper2SaaS
 
-Multi-agent AI system that transforms academic arXiv papers into validated SaaS business opportunities.
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+[![Framework: Agno](https://img.shields.io/badge/framework-Agno-orange.svg)](https://github.com/agnohq/agno)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Overview
+**Transform academic arXiv papers into validated SaaS business opportunities using a multi-agent AI factory.**
 
-Paper2SaaS uses a team of specialized AI agents to:
-1. Analyze academic papers from arXiv
-2. Research market opportunities and pain points
-3. Generate SaaS ideas based on paper innovations
-4. Validate ideas with market research
-5. Provide strategic recommendations
-6. Create technical implementation plans (GitHub repos, architecture, MVP timeline)
-7. Produce comprehensive opportunity reports
+---
 
-## Tech Stack
+## 📖 Table of Contents
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Architecture](#-architecture)
+- [Methodology](#-methodology)
+- [Setup](#-setup)
+- [Usage](#-usage)
+- [Python Package Details](#-python-package-details)
+- [Project Principles](#-project-principles)
 
-- **Python**: 3.12+
-- **Framework**: [Agno](https://github.com/agnohq/agno) - Multi-agent orchestration
-- **LLM**: Mistral AI (mistral-large, mistral-small)
-- **API**: FastAPI
-- **Database**: SQLite (agent event persistence)
-- **Tools**: ArxivTools, FirecrawlTools, WebsiteTools, BaiduSearchTools, HackerNewsTools
+---
 
-### Frontend (Agent UI)
-- **Framework**: Next.js 15
-- **Language**: TypeScript
-- **Styling**: TailwindCSS, Shadcn UI
-- **State Management**: Zustand
-- **Runtime**: Bun (or Node/pnpm)
+## 🎯 Overview
 
-## Architecture
+Paper2SaaS bridges the gap between theoretical academic research and commercial application. By leveraging a team of specialized AI agents, the platform automates the discovery, ideation, and validation process required to turn complex research papers into actionable business plans.
 
-### Main Team: paper2saas_team (8 agents)
+---
 
-Sequential workflow with parallel execution phases:
-1. **PaperAnalyzer** - Fetches and analyzes arXiv papers with fallback protocol
-2. **MarketResearcher** - Conducts tool-based market research
-3. **IdeaGenerator** - Creates SaaS ideas from verified inputs
-4. **ValidationResearcher** (Parallel) - Validates top ideas with external research
-5. **ProductEngineer** (Parallel) - Finds GitHub repos and creates technical implementation plans
-6. **StrategicAdvisor** - Evaluates and scores ideas based on validation and technical feasibility
-7. **FactChecker** - Verifies claims against sources
-8. **ReportGenerator** - Compiles comprehensive final report
+## ✨ Key Features
 
-### Critique Team: idea_roaster_team (2 agents)
+- 🕵️ **Intelligent Paper Analysis**: Deep parsing of arXiv papers with multi-tool fallback (Arxiv → Semantic Scholar).
+- 💡 **Automated Brainstorming**: Generates unique SaaS product concepts based on core research innovations.
+- ✅ **Rigorous Validation**: Real-time market research, competitor analysis, and patent risk assessment.
+- 📋 **Technical Roadmap**: Detailed implementation plans, including suggested GitHub repos and MVP timelines.
+- 🛠️ **Anti-Hallucination Protocol**: Enforced structured outputs and multi-step verification (Chain-of-Note, Chain-of-Verification).
+- 🖥️ **Reactive UI**: Modern Next.js interface with real-time streaming of agent reasoning and Claude-style artifacts.
 
-Parallel critique for stress-testing:
-- **DevilsAdvocate** - Technical critique with tool-verified evidence
-- **MarketSkeptic** - Market assumptions challenge
+---
 
-### Frontend: Agent UI
-A modern, reactive web interface built with Next.js that provides:
-- Real-time streaming of agent activities
-- Artifact rendering (Reports, Code, Markdown)
-- Theme support (Light/Dark/System)
-- Session management
-- **Robust Error Handling**: UI components wrapped in Error Boundaries for stability
+## 🏗️ Architecture
 
-## Key Features
+Paper2SaaS employs an orchestration pattern with a primary execution team and a secondary critique team to ensure high-quality, verified results.
 
-- **Structured Outputs**: Pydantic models prevent hallucination
-- **Chain-of-Note (CoN)**: Systematic source tracking
-- **Chain-of-Verification (CoVe)**: Claim verification protocol
-- **Multi-Tool Fallback**: ArxivTools → FirecrawlTools → WebsiteTools → BaiduSearchTools
-- **Reasoning**: All agents have configurable reasoning steps
-- **Event Persistence**: SQLite storage for debugging and analysis
-- **Rich Agent UI**: Interactive chat interface with Claude-style [Artifacts support](ARTIFACTS_GUIDE.md)
+### Multi-Agent Workflow
 
-## Setup
+```mermaid
+graph TD
+    User((User)) -->|Input: ArXiv ID| PA[Paper Analyzer]
+    
+    subgraph "Execution Team (paper2saas_team)"
+        PA --> MR[Market Researcher]
+        MR --> IG[Idea Generator]
+        IG --> VR[Validation Researcher]
+        IG --> PE[Product Engineer]
+        VR --> SA[Strategic Advisor]
+        PE --> SA
+        SA --> FC[Fact Checker]
+        FC --> RG[Report Generator]
+    end
+    
+    subgraph "Critique Team (idea_roaster_team)"
+        IG -.-> DA[Devils Advocate]
+        IG -.-> MS[Market Skeptic]
+        DA -.-> SA
+        MS -.-> SA
+    end
+    
+    RG -->|Output: Opportunity Report| Final((Opportunity Report))
+```
+
+### Specialized Agents
+
+| Agent | Role | Focus |
+| :--- | :--- | :--- |
+| **Paper Analyzer** | Discovery | Fetches and summarizes core research innovations. |
+| **Market Researcher** | Analysis | Identifies market gaps and target audience pain points. |
+| **Idea Generator** | Ideation | Synthesizes research and market needs into SaaS concepts. |
+| **Validation Researcher** | Evidence | Searches for competitors, funding, and real-world demand. |
+| **Product Engineer** | Engineering | Scopes the MVP and technical stack. |
+| **Strategic Advisor** | Evaluation | Scores ideas based on feasibility and market potential. |
+| **Devils Advocate** | Critique | Challenges technical assumptions with verified evidence. |
+| **Fact Checker** | Verification | Final audit of all claims against tool sources. |
+
+---
+
+## 🧪 Methodology
+
+### Anti-Hallucination Measures
+To ensure reliability, all agents follow a strict protocol:
+1. **Structured Outputs**: Forced Pydantic schemas for all data.
+2. **Chain-of-Note (CoN)**: Agents must take structured notes from search results before synthesizing.
+3. **Chain-of-Verification (CoVe)**: A dedicated fact-checking pass verifies every claim against source material.
+4. **Source Attribution**: Every fact in the final report is linked to its source URL or paper citation.
+
+---
+
+## 🚀 Setup
 
 ### Prerequisites
+- **Python**: 3.12 or higher
+- **Node/Bun**: For the frontend
+- **[uv](https://github.com/astral-sh/uv)**: Recommended Python package manager
 
-- Python 3.12+
-- [uv](https://github.com/astral-sh/uv) package manager (Backend)
-- [Bun](https://bun.sh) runtime (Frontend)
-
-### Installation
-
+### 1. Clone & Install
 ```bash
-# Clone repo
-git clone <repo-url>
+git clone https://github.com/Ash-Blanc/paper2saas
 cd paper2saas
 
-# Install Backend dependencies
+# Install Backend
 uv sync
 
-# Configure environment
-cp .env.example .env
-# Edit .env with your API keys (MISTRAL_API_KEY, FIRECRAWL_API_KEY)
-
-# Install Frontend dependencies
+# Install Frontend
 cd agent-ui
 bun install
-# or if using pnpm
-# pnpm install
 cd ..
 ```
 
-### Environment Variables
-
-Required:
-- `MISTRAL_API_KEY` - Your Mistral AI API key
-- `FIRECRAWL_API_KEY` - Your Firecrawl API key
-
-Optional (Model Overrides):
-- `LARGE_MODEL` - Default: mistral:mistral-large-latest
-- `SMALL_MODEL` - Default: mistral:mistral-small-latest
-- `PRODUCT_ENGINEER_MODEL` - Specific override for Product Engineer
-- `VALIDATION_RESEARCHER_MODEL` - Specific override for Validation Researcher
-- ... (see `paper2saas_app/config.py` for full list)
-
-Configuration:
-- `REASONING_MIN_STEPS` - Default: 2
-- `REASONING_MAX_STEPS` - Default: 8
-- `ENABLE_MARKDOWN` - Default: true
-- `STORE_EVENTS` - Default: true
-- `SHOW_MEMBER_RESPONSES` - Default: true
-- `LOG_LEVEL` - Default: INFO
-
-## Usage
-
-### 1. Start the Backend (API)
+### 2. Configuration
+The backend looks for a `.env` file in `paper2saas/paper2saas/.env`.
 
 ```bash
-# Start the backend server
-uv run -m paper2saas_app.main
+cp paper2saas/paper2saas/.env.example paper2saas/paper2saas/.env
+# Edit the file with your API keys:
+# MISTRAL_API_KEY=your_key
+# FIRECRAWL_API_KEY=your_key
+```
+
+---
+
+## 🔌 Usage
+
+### 1. Start the Backend (API)
+The backend runs on port `7777` by default.
+```bash
+cd paper2saas
+uv run python server.py
 ```
 
 ### 2. Start the Frontend (UI)
-
+The UI provides an interactive portal to chat with your agents.
 ```bash
 cd agent-ui
 bun dev
 ```
+Navigate to `http://localhost:3000` to start transforming papers!
 
-- Backend API: `http://localhost:8000` (or `http://localhost:7777` depending on Agno config)
-- Frontend UI: `http://localhost:3000`
-
-### API Endpoints
-
-- `GET /` - Health check
-- `POST /paper2saas/run` - Analyze paper and generate opportunities
-  ```json
-  {
-    "arxiv_id": "2512.24991v1"
-  }
-  ```
-
-### Example Usage
-
-```python
-import requests
-
-response = requests.post(
-    "http://localhost:8000/paper2saas/run",
-    json={"arxiv_id": "2512.24991v1"}
-)
-
-print(response.json())
-```
-
-## Project Structure
-
-```
-paper2saas/
-├── paper2saas_app/        # Modular Application Package
-│   ├── agents/            # Individual Agent Definitions
-│   ├── teams/             # Team Orchestration Logic
-│   ├── prompts/           # Agent Instructions & Prompts
-│   ├── config.py          # Configuration & Settings
-│   ├── models.py          # Pydantic Data Models
-│   └── utils.py           # Shared Utilities
-├── paper2saas.py          # Legacy Facade (Backward Compatibility)
-├── my_os.py               # AgentOS setup and FastAPI app
-├── pyproject.toml         # Python Dependencies
-├── .env                   # Environment variables (not in git)
-├── tmp/
-│   ├── paper2saas.db      # SQLite event storage
-│   └── paper2saas.log     # Application logs
-├── agent-ui/              # Next.js Frontend application
-├── ARTIFACTS_GUIDE.md     # Documentation for UI Artifacts
-└── README.md
-```
-
-## Development
-
-### Logging
-
-Logs are written to:
-- Console (stdout)
-- `tmp/paper2saas.log`
-
-Configure log level with `LOG_LEVEL` environment variable.
-
-### Database
-
-Agent events are stored in `tmp/paper2saas.db` for:
-- Debugging agent interactions
-- Analyzing workflow performance
-- Context sharing between agents
-
-### Adding New Agents
-
-1. Define Pydantic output schema in `paper2saas_app/models.py`
-2. Add instructions to `paper2saas_app/prompts/agents.py`
-3. Create Agent definition in `paper2saas_app/agents/`
-4. Register agent in `paper2saas_app/teams/paper2saas.py`
-5. Update `AgentConfig` in `paper2saas_app/config.py` if new model settings are needed
-
-## Methodology
-
-### Anti-Hallucination Measures
-
-1. **Structured Outputs**: All agents use Pydantic schemas
-2. **Source Attribution**: Every claim must cite tool/source
-3. **Chain-of-Note**: Systematic reading notes before synthesis
-4. **Chain-of-Verification**: Post-draft claim verification
-5. **Fact Checking**: Dedicated agent verifies claims
-6. **Data Quality Metrics**: Confidence scores, tool success rates
-
-### Tool Usage Protocol
-
-- Primary tool attempts first
-- Automatic fallback chain on failure
-- All attempts logged
-- Confidence scoring based on source quality
-
-## Troubleshooting
-
-### Common Issues
-
-**Error: Missing API keys**
-- Ensure `.env` file exists with valid keys
-- Check `MISTRAL_API_KEY` and `FIRECRAWL_API_KEY`
-
-**Error: Database locked**
-- Only one process can write to SQLite at a time
-- Restart the server
-
-**Low confidence scores**
-- Verify arXiv ID is correct
-- Check if paper is accessible
-- Review logs in `tmp/paper2saas.log`
-
-**UI Rendering Error**
-- If a message displays "Rendering Error", the content likely contained malformed markdown.
-- Check the console for details. The app will remain stable thanks to Error Boundaries.
-
-## Contributing
-
-Currently in active development. Main contributor: ash_blanc
-
-## License
-
-[Add license information]
+---
 
 ## 📦 Python Package Details
 
 ### Package Structure
-
 ```
 src/paper2saas/
 ├── __init__.py          # Public API exports
 ├── config.py            # Centralized settings (pydantic-settings)
 ├── models/              # Shared Pydantic models
-│   ├── paper.py         # Paper, PaperCluster
-│   └── validation.py    # MarketValidation, CompetitorAnalysis
-├── tools/               # Agno toolkits
-│   └── semantic_scholar.py  # SemanticScholarTools (async, rate-limited)
-├── analysis/            # Analysis engines
-│   ├── citation_graph.py    # CitationGraphAnalyzer
-│   └── market_validator.py  # MarketValidator
+├── tools/               # Agno toolkits (Semantic Scholar, etc.)
+├── analysis/            # Analysis engines (Citation Graph)
 ├── agents/              # Agno agent definitions
-│   ├── discovery.py     # paper_discovery_agent
-│   ├── ideation.py      # application_brainstormer
-│   └── validation.py    # market_validation_agent
 └── workflows/           # End-to-end pipelines
-    ├── idea_to_saas.py       # Paper → SaaS Concepts
-    └── saas_to_improvement.py # SaaS → Research Improvements
 ```
 
 ### Library Usage
-
+You can use the core components as a Python library:
 ```python
-from paper2saas import (
-    Paper,
-    SemanticScholarTools,
-    CitationGraphAnalyzer,
-    IdeaToSaaSWorkflow,
-    get_settings,
-)
+from paper2saas import IdeaToSaaSWorkflow
 
-# Use Semantic Scholar tools directly
-tools = SemanticScholarTools()
-paper = await tools.get_paper("arXiv:1706.03762")  # Attention Is All You Need
-lineage = await tools.build_research_lineage(paper["id"])
-
-# Run the full workflow
 workflow = IdeaToSaaSWorkflow()
 result = await workflow.run(seed_paper_id="arXiv:1706.03762")
-print(f"SaaS Concepts: {len(result.saas_concepts)}")
+print(f"Generated {len(result.saas_concepts)} SaaS concepts.")
 ```
 
-### Key Components
+---
 
-#### SemanticScholarTools
+## 📜 Project Principles
 
-Async-first toolkit for paper discovery:
-- **Rate limiting**: Token bucket with automatic retry (free tier: 100 req/5min)
-- **Caching**: LRU cache with 1-hour TTL
-- **Batch operations**: Fetch up to 500 papers in one call
-- **ML recommendations**: Native Semantic Scholar recommendations
+- **KISS (Keep It Simple, Stupid)**: We prioritize clear, maintainable code over complex abstractions.
+- **Agentic Rigor**: Agents are tools, but verification is mandatory. We trust but verify every output.
+- **Open Discovery**: Bridging the gap between ivory tower research and the startup garage.
 
-#### CitationGraphAnalyzer
+---
 
-NetworkX-based graph analysis:
-- Community detection (Louvain algorithm)
-- PageRank & betweenness centrality
-- Application pathway finding
-- Temporal trend analysis
+## 🤝 Contributing
+Currently in active development. Main contributor: **ash_blanc**
 
-#### MarketValidator
+---
 
-Market validation for SaaS ideas:
-- Competitor discovery
-- Patent risk assessment
-- Funding signal detection
-- Market size estimation
+## 📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
