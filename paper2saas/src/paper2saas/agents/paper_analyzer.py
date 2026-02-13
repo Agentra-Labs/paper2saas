@@ -7,6 +7,7 @@ from paper2saas.agents.factory import create_agent
 from paper2saas.prompts.research import PAPER_ANALYZER_INSTRUCTIONS
 from paper2saas.tools.optional import get_optional_tools
 from paper2saas.tools.semantic_scholar import SemanticScholarTools
+from paper2saas.knowledge import research_knowledge
 
 # Base tools + optional (FirecrawlTools, BaiduSearchTools)
 _tools = [
@@ -22,4 +23,6 @@ paper_analyzer = create_agent(
     model_id=AgentConfig.LARGE_MODEL,  # Keep LARGE for quality
     reasoning=False,
     tool_call_limit=3,  # Reduced from 4 to 3 (modest reduction)
+    knowledge=research_knowledge,  # Shared knowledge base for cross-session access
+    search_knowledge=True,  # Enable automatic knowledge search
 )

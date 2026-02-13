@@ -82,13 +82,14 @@ def search_papers(query: str, limit: int = 5) -> list:
 
     Args:
         query: Natural language search query
-        limit: Maximum number of results
+        limit: Maximum number of results (note: Knowledge.search uses max_results parameter)
 
     Returns:
         List of relevant document chunks
     """
     try:
-        results = research_knowledge.search(query=query, limit=limit)
+        # Knowledge.search() doesn't accept 'limit', it uses the max_results from initialization
+        results = research_knowledge.search(query=query)
         return results
     except (OSError, ValueError) as e:
         logger.error("Failed to search papers for '%s': %s", query, e)
